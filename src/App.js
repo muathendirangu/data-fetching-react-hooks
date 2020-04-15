@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Api from './FetchHits';
+
 
 function App() {
-  const [data, setData] = useState({hits:[]});
-  const [query, setQuery] = useState('');
-  useEffect( () => {
-    const getResult = async () => {
-        const response = await fetch(`https://hn.algolia.com/api/v1/search?query=${query}`);
-        const hits = await response.json();
-        setData(hits)
-    }
-    getResult()
-  },[query]
-  )
+  const [query, setQuery] = useState('redux');
+  const [{data, isLoading, isError}, fetchUrl] = Api(
+    'https://hn.algolia.com/api/v1/search?query=redux',
+    {hits: [] },
+  );
 
   return (
     <>
@@ -20,6 +16,14 @@ function App() {
       value={query}
       onChange={(e) => setQuery(e.target.value)}
     />
+    <button
+      type="button"
+      onClick={() => {fetchUrl(`https://hn.algolia.com/api/v1/search?query=${query}`)}}
+    > Search </button>
+    {isError && <div>Something went wrong...</div> }
+    {isLoading ? (
+      <div>Loading ...</div>
+      ) : (
    <ul>
      {
        data.hits.map(item => (
@@ -29,6 +33,7 @@ function App() {
        ))
      }
    </ul>
+    )}
    </>
   )
 }
