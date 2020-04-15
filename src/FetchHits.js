@@ -40,17 +40,27 @@ const FetchHits = (initialUrl, initialData) => {
 
   const [url, setUrl] = useState(initialUrl);
   useEffect( () => {
+      let didCancel = false;
+      
     const getResult = async () => {
         dispatch({type: 'FETCH_INIT'});
         try {
         const response = await fetch(url);
         const hits = await response.json();
-        dispatch({type: 'FETCH_SUCCESS', payload : hits})
+        if(!didCancel){
+            dispatch({type: 'FETCH_SUCCESS', payload : hits});    
+        }
+        
       } catch (error) {
-        dispatch({type: 'FETCH_FAILURE'})
+          if(!didCancel) {
+            dispatch({type: 'FETCH_FAILURE'});
+          }
       }
     }
-    getResult()
+    getResult();
+    return () => {
+        didCancel = true;
+    }
   },[url]);
     return [state, setUrl];
 }
